@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="react.js"></script>
+    <script src="react-dom.js"></script>
+    <script src="browser.min.js"></script>
+  </head>
+  <body>
+    <div id="container"></div>
+    <script type="text/babel">
+	//总组件
+		var Todobox=React.createClass({
+			//父组件储存数据	
+		getInitialState :function(){
+			return{
+				todolist:[
+		      {
+                        "id": "1",
+                        "task":"做一个TodoList Demo",
+                        "complete":"false"
+                    }, {
+                        "id": "2",
+                        "task": "学习ES6",
+                        "complete": "false"
+                    }, {
+                        "id": "3",
+                        "task": "Hello React",
+                        "complete": "true"
+                    }, {
+                        "id": "4",
+                        "task": "找工作",
+                        "complete": "false"
+                    }
+				]
+				};
+			},
+		
+			//当发生删除，更改任务状态和新增任务时改变state
+			handleChange: function (rows) {
+             this.setState({
+                 todolist: rows
+             });
+         },
+		 	//更改任务完成状态
+	toggleComplete:function(taskID){
+		var rows = this.state.todolist;
+		 var task = this.state.task;
+		  for (let item of rows) {
+          if (item.id === taskID) {
+          item.complete = item.complete === "true" ? "false" : "true"
+      }  
+    }
+		 let itemchecked
+            if (rows.complete === "true") {
+            task = <del>{task}</del>
+            itemchecked = true
+        } else {
+			}
+
+		},
+
+	//删除数据
+	handleDel:function(e){
+			//获取index
+            var id = e.target.getAttribute("data-index");
+			var rows=this.state.todolist;
+			//根据index删除数据
+            rows.splice(id,1);
+			//回调给父组件改变state
+           this.setState({rows:rows})
+        },
+
+		 //添加子组件
+		render:function(){
+			return(
+			<div>
+			<h1>react todolist</h1>
+			 <Addtodoitem todolist={this.state.todolist} add={this.handleChange}/>
+             <Todolist todolist={this.state.todolist}  toggleComplete={this.toggleComplete} handleDel={this.handleDel}/>
+			</div>
+			);
+			}
+		});
+	//用于修改任务状态和删除数据
+var Todolist=React.createClass({
+		render:function(){
+				return(	
+				<ul>
+{
+	//遍历数据
+	this.props.todolist.map(
+	function (rows,id) {
+		return(
+<li key={rows.id} taskId={rows.id}>
+<input type="checkbox" value={rows.complete} onClick={this.props.toggleComplete} checked={this.props.itemchecked}/>
+<span>{rows.task}</span>				
+<button onClick={this.props.handleDel} data-index={id}>删除</button>
+</li>
+		);
+		}.bind(this))
+
+	}
+	</ul>	
+);
+		}
+		});
+		//用于新增数据
+		var Addtodoitem=React.createClass({
+			//对新增任务生成随机id
+			generateGUID:function() {
+    			return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+     			var r = Math.random() * 16 | 0,
+        		v = c == 'x' ? r : (r & 0x3 | 0x8)
+      			return v.toString(16)
+    			})
+			},
+
+          handleAdd:function(e){ 
+		  //获取真实DOM          
+		  e.preventDefault();
+          let element = ReactDOM.findDOMNode(this.refs.inputnew);
+		  //获取数据
+          let newthing = element.value;
+			var rows = this.props.todolist;
+            if(newthing !== "")
+			{
+				//数组内添加新数据
+            rows.push({
+			id:this.generateGUID(),
+			task:newthing,
+			complete:"flase",
+			}
+			);
+			//改变state
+            this.props.add(rows)
+            } 
+			//清空输入框
+             element.value = ""
+        },
+
+		render:function(){
+			return(
+			<div>
+				<input type="text" ref="inputnew" placeholder="吃饭睡觉打豆豆～" />
+				<input type="button" value="添加" onClick={this.handleAdd}/>
+			</div>
+			);
+			}
+		});
+
+      ReactDOM.render(
+        <Todobox/>,
+        document.getElementById("container")
+      );
+
+    </script>
+  </body>
+</html>
+
+
